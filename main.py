@@ -3,15 +3,17 @@ import sexp
 import pprint
 import translator
 from multiset import *
-default_file = 'max2.sl'
+default_file = 'max3.sl'
 exchange_symbol = ['+', '*', 'and', '=']
+compare_symbol = ['>', '<', '>=', '<=']
 searched_set = set()
 log_file = open('log.txt', 'w')
+log_ter_file = open('log_ter.txt', 'w')
 tmp_cnt = 0
 all_cnt = 0
 
 
-def Extend(Stmts, Productions):
+def Extend(Stmts, Productions, depth=0):
     ret = []
     for i in range(len(Stmts)):
         if type(Stmts[i]) == list:
@@ -21,6 +23,18 @@ def Extend(Stmts, Productions):
                     ret.append(Stmts[0:i]+[extended]+Stmts[i+1:])
         elif Productions.has_key(Stmts[i]):
             for extended in Productions[Stmts[i]]:
+                # if extended[0] == 'ite' and depth == 0:
+                #     tmp_ret = []
+                #     tmp_ret.append(Extend([extended[1]], Productions, 1))
+                #     tmp_ret.append(Extend([extended[2]], Productions, 1))
+                #     tmp_ret.append(Extend([extended[3]], Productions, 1))
+                #     for i1 in range(len(tmp_ret[0])):
+                #         for i2 in range(len(tmp_ret[1])):
+                #             for i3 in range(len(tmp_ret[2])):
+                #                 ret.append(
+                #                     Stmts[0:i] + ['ite', tmp_ret[0][i1],
+                #                                   tmp_ret[1][i2], tmp_ret[2][i3]] + Stmts[i+1:])
+                # else:
                 ret.append(Stmts[0:i]+[extended]+Stmts[i+1:])
         if len(ret) > 0:
             return ret
@@ -44,8 +58,8 @@ if __name__ == '__main__':
     bmExpr = sexp.sexp.parseString(bm, parseAll=True).asList()[
         0]  # Parse string to python list
     # pprint.pprint(bmExpr)
-    checker, is_ite_prior = translator.ReadQuery(bmExpr)
-    #print (checker.check('(define-fun f ((x Int)) Int (mod (* x 3) 10)  )'))
+    checker, is_ite_prior, is_cmp_prior = translator.ReadQuery(bmExpr)
+    # print (checker.check('(define-fun f ((x Int)) Int (mod (* x 3) 10)  )'))
     # raw_input()
     SynFunExpr = []
     StartSym = 'My-Start-Symbol'  # virtual starting symbol
@@ -75,6 +89,8 @@ if __name__ == '__main__':
                 Productions[NTName].append(str(NT[1]))
             elif type(NT) == list and NT[0] == 'ite' and is_ite_prior:
                 Productions[NTName].insert(0, NT)
+            elif type(NT) == list and NT[0] in compare_symbol and is_cmp_prior:
+                Productions[NTName].insert(0, NT)
             else:
                 Productions[NTName].append(NT)
     Count = 0
@@ -97,6 +113,7 @@ if __name__ == '__main__':
             # print (Str)
             # raw_input()
             # print '1'
+            print >> log_ter_file, Str
             counterexample = checker.check(Str)
             # print counterexample
             if(counterexample == None):  # No counter-example
