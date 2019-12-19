@@ -1,6 +1,7 @@
 from z3 import *
 
 verbose = False
+logic_symbol = ['and', 'or', '=>', 'not']
 
 
 def DeclareVar(sort, name):
@@ -48,6 +49,7 @@ def ReadQuery(bmExpr):
     VarDecMap = {}
     Constraints = []
     FunDefMap = {}
+    is_ite_prior = False
     for expr in bmExpr:
         if len(expr) == 0:
             continue
@@ -56,6 +58,8 @@ def ReadQuery(bmExpr):
         elif expr[0] == 'declare-var':
             VarDecMap[expr[1]] = expr
         elif expr[0] == 'constraint':
+            if type(expr[1]) == list and expr[1][0] in logic_symbol:
+                is_ite_prior = True
             Constraints.append(expr)
         elif expr[0] == 'define-fun':
             FunDefMap[expr[1]] = expr
@@ -124,4 +128,4 @@ def ReadQuery(bmExpr):
                 return model
 
     checker = Checker(VarTable, synFunction, Constraints)
-    return checker
+    return checker, is_ite_prior
