@@ -55,6 +55,7 @@ class ConstrainPattern:
         pass
 
     def getPattern(self, constrains):
+        # TODO: process >= & <=
         for consItem in constrains.allCons:
             assert consItem[0] == 'constraint'
             if consItem[1][0] in cmp_symbol:
@@ -67,4 +68,17 @@ class ConstrainPattern:
                 self.eq_cons.append(consItem[1])
 
     def buildGuess(self):
-        pass
+        # TODO: check whether symbol appears in grammar finally
+        if (len(self.imply_cons) > 0):
+            # array_search
+            pass
+        elif (len(self.cmp_cons) > 0):
+            # max
+            pass
+        else:
+            if (len(self.eq_cons) > 0):
+                # process eq
+                pass
+            if (len(self.logic_cons) > 0):
+                # process logic
+                pass
