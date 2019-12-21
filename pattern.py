@@ -4,6 +4,7 @@ cmp_symbols = ['<', '<=', '>=', '>']
 class PreConstrain:
     allCons = []
     funcDef = []
+    funcArgs = []
     decVars = []
 
     def __init__(self):
@@ -13,6 +14,7 @@ class PreConstrain:
         self.funcDef.append(expr[1])
         for arg in expr[2]:
             self.funcDef.append(arg[0])
+            self.funcArgs.append(arg[0])
 
     def preProcessCons(self):
         pass
