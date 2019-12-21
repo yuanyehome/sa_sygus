@@ -100,11 +100,12 @@ if __name__ == '__main__':
     pattern.getPattern(preCons)
     firstGuess = pattern.buildGuess()
     success = False
-    firstGuess = translator.toString(firstGuess)
-    Str = FuncDefineStr[:-1]+' ' + firstGuess+FuncDefineStr[-1]
-    if (checker.check(Str) == None):
-        success = True
-        Ans = Str
+    if firstGuess != None:
+        firstGuess = translator.toString(firstGuess)
+        Str = FuncDefineStr[:-1]+' ' + firstGuess+FuncDefineStr[-1]
+        if (checker.check(Str) == None):
+            success = True
+            Ans = Str
     while(len(BfsQueue) != 0 and not success):
         Curr = BfsQueue.pop(0)
         # print("Extending "+str(Curr))
