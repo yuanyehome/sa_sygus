@@ -3,6 +3,7 @@ import sexp
 import pprint
 import translator
 from multiset import *
+from pattern import *
 default_file = 'max3.sl'
 exchange_symbol = ['+', '*', 'and', '=']
 compare_symbol = ['>', '<', '>=', '<=']
@@ -58,7 +59,7 @@ if __name__ == '__main__':
     bmExpr = sexp.sexp.parseString(bm, parseAll=True).asList()[
         0]  # Parse string to python list
     # pprint.pprint(bmExpr)
-    checker, is_ite_prior, is_cmp_prior = translator.ReadQuery(bmExpr)
+    checker, is_ite_prior, is_cmp_prior, preCons = translator.ReadQuery(bmExpr)
     # print (checker.check('(define-fun f ((x Int)) Int (mod (* x 3) 10)  )'))
     # raw_input()
     SynFunExpr = []
@@ -94,7 +95,15 @@ if __name__ == '__main__':
             else:
                 Productions[NTName].append(NT)
     Count = 0
-    while(len(BfsQueue) != 0):
+
+    pattern = ConstrainPattern()
+    pattern.getPattern(preCons)
+    firstGuess = pattern.buildGuess()
+    success = False
+    if (checker.check(firstGuess) == None):
+        print firstGuess
+        success = True
+    while(len(BfsQueue) != 0 and not success):
         Curr = BfsQueue.pop(0)
         # print("Extending "+str(Curr))
         TryExtend = Extend(Curr, Productions)
@@ -113,7 +122,7 @@ if __name__ == '__main__':
             # print (Str)
             # raw_input()
             # print '1'
-            print >> log_ter_file, Str
+            # print >> log_ter_file, Str
             counterexample = checker.check(Str)
             # print counterexample
             if(counterexample == None):  # No counter-example
@@ -139,7 +148,7 @@ if __name__ == '__main__':
             # Don't delete it! It is useless now. But may be used in future!
             if not TE_str in TE_set:
                 BfsQueue.append(TE)
-                print >> log_file, TE_str
+                # print >> log_file, TE_str
                 TE_set.add(TE_str)
 
     print(Ans)

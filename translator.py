@@ -1,4 +1,6 @@
 from z3 import *
+from pattern import *
+import copy
 
 verbose = False
 logic_symbol = ['and', 'or', '=>', 'not']
@@ -52,12 +54,15 @@ def ReadQuery(bmExpr):
     FunDefMap = {}
     is_ite_prior = False
     is_cmp_prior = False
+    preCons = PreConstrain()
     for expr in bmExpr:
         if len(expr) == 0:
             continue
         elif expr[0] == 'synth-fun':
             SynFunExpr = expr
+            preCons.processFunc(expr)
         elif expr[0] == 'declare-var':
+            preCons.decVars.append(expr[1])
             VarDecMap[expr[1]] = expr
         elif expr[0] == 'constraint':
             if type(expr[1]) == list and expr[1][0] in logic_symbol:
@@ -68,6 +73,8 @@ def ReadQuery(bmExpr):
         elif expr[0] == 'define-fun':
             FunDefMap[expr[1]] = expr
 
+    preCons.allCons = copy.deepcopy(Constraints)
+    preCons.preProcessCons()
     if verbose:
         print(SynFunExpr)
         print(VarDecMap)
@@ -132,4 +139,4 @@ def ReadQuery(bmExpr):
                 return model
 
     checker = Checker(VarTable, synFunction, Constraints)
-    return checker, is_ite_prior, is_cmp_prior
+    return checker, is_ite_prior, is_cmp_prior, preCons
