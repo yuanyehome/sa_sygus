@@ -19,13 +19,16 @@ class PreConstrain:
 
     def hasFunc(self, l):
         if self.funcDef[0] in l:
-            return True, l
+            argMap = {}
+            for i in range(1, len(l)):
+                argMap[l[i]] = self.funcArgs[i - 1]
+            return True, argMap
         for ele in l:
             if type(ele) == list:
-                b, retl = self.hasFunc(ele)
+                b, argMap = self.hasFunc(ele)
                 if b:
-                    return True, retl
-        return False
+                    return True, argMap
+        return False, {}
 
     def replaceCons(self, l, argMap):
         for i in range(len(l)):
@@ -36,11 +39,9 @@ class PreConstrain:
 
     def preProcessCons(self):
         for cons in self.allCons:
-            b, retl = self.hasFunc(cons)
-            argMap = {}
-            for i in range(1, len(retl)):
-                argMap[retl[i]] = self.funcArgs[i - 1]
-            self.replaceCons(cons, argMap)
+            b, argMap = self.hasFunc(cons)
+            if b:
+                self.replaceCons(cons, argMap)
 
 
 class ConstrainPattern:
