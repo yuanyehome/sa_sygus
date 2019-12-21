@@ -4,8 +4,10 @@ import pprint
 import translator
 from multiset import *
 from pattern import *
-default_file = 'array_search_10.sl'
+# default_file = 'max10.sl'
 # default_file = 'max2.sl'
+# default_file = 'three.sl'
+default_file = 's3.sl'
 exchange_symbol = ['+', '*', 'and', '=']
 compare_symbol = ['>', '<', '>=', '<=']
 searched_set = set()
@@ -13,10 +15,14 @@ log_file = open('log.txt', 'w')
 log_ter_file = open('log_ter.txt', 'w')
 tmp_cnt = 0
 all_cnt = 0
+firstFlag = True
+has_ge_le = False
+has_g_l = False
 
 
 def Extend(Stmts, Productions, depth=0):
     ret = []
+    global firstFlag
     for i in range(len(Stmts)):
         if type(Stmts[i]) == list:
             TryExtend = Extend(Stmts[i], Productions)
@@ -39,6 +45,18 @@ def Extend(Stmts, Productions, depth=0):
                 # else:
                 ret.append(Stmts[0:i]+[extended]+Stmts[i+1:])
         if len(ret) > 0:
+            # TODO: fuck here! should change!
+            if firstFlag and type(ret[0][0]) == list and ret[0][0][0] == 'ite':
+                tmp_ret_new = copy.deepcopy(ret[0][0])
+                tmp_ret = tmp_ret_new
+                while depth > 0:
+                    tmp_ret[1] = ['<=', 'x', 'y']
+                    tmp_ret[2] = copy.deepcopy(Productions['Start'][0])
+                    tmp_ret = tmp_ret[2]
+                    tmp_ret[1] = ['=', 'x', 'y']
+                    depth -= 1
+                firstFlag = False
+                ret.insert(0, [tmp_ret_new])
             return ret
     return ret
 
@@ -77,6 +95,8 @@ if __name__ == '__main__':
     Productions = {StartSym: []}
     Type = {StartSym: SynFunExpr[3]}  # set starting symbol's return type
 
+    pattern = ConstrainPattern(preCons)
+    pattern.getPattern(preCons)
     for NonTerm in SynFunExpr[4]:  # SynFunExpr[4] is the production rules
         NTName = NonTerm[0]
         NTType = NonTerm[1]
@@ -88,17 +108,28 @@ if __name__ == '__main__':
         for NT in NonTerm[2]:
             if type(NT) == tuple:
                 # deal with ('Int',0). You can also utilize type information, but you will suffer from these tuples.
+                if NT[1] not in pattern.numbers:
+                    continue
                 Productions[NTName].append(str(NT[1]))
             elif type(NT) == list and NT[0] == 'ite' and is_ite_prior:
                 Productions[NTName].insert(0, NT)
             elif type(NT) == list and NT[0] in compare_symbol and is_cmp_prior:
                 Productions[NTName].insert(0, NT)
             else:
+                if type(NT) == list and NT[0] in ['>=', '<='] and has_ge_le:
+                    continue
+                if type(NT) == list and NT[0] in ['>=', '<=']:
+                    has_ge_le = True
+                if type(NT) == list and NT[0] in ['>', '<'] and has_g_l:
+                    continue
+                if type(NT) == list and NT[0] in ['>', '<']:
+                    has_g_l = True
+                if type(NT) == list and NT[0] in math_symbol and \
+                        len(pattern.mathSymbols) == 0:
+                    continue
                 Productions[NTName].append(NT)
     Count = 0
 
-    pattern = ConstrainPattern(preCons)
-    pattern.getPattern(preCons)
     firstGuess = pattern.buildGuess()
     success = False
     if firstGuess != None:
@@ -111,7 +142,7 @@ if __name__ == '__main__':
     while(len(BfsQueue) != 0 and not success):
         Curr = BfsQueue.pop(0)
         # print("Extending "+str(Curr))
-        TryExtend = Extend(Curr, Productions)
+        TryExtend = Extend(Curr, Productions, pattern.numCall - 2)
         if(len(TryExtend) == 0):  # Nothing to extend
             # use Force Bracket = True on function definition. MAGIC CODE. DO NOT MODIFY THE ARGUMENT ForceBracket = True.
             CurrStr = translator.toString(Curr)

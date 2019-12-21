@@ -1,5 +1,6 @@
 import copy
 cmp_symbol = ['<', '<=', '>=', '>']
+math_symbol = ['+', '-', '*', '/']
 logic_symbol = ['and', 'or', '=>', 'not']
 
 
@@ -77,6 +78,74 @@ def getImplyGuess(l, funcDef):
     return ret
 
 
+def getEqGuess(l, funcDef):
+    all_ret = ['ite', [], []]
+    ret = all_ret
+    for item in l:
+        if item[1][0] == funcDef[0]:
+            func_idx = 1
+        else:
+            func_idx = 2
+        cond_args = []
+        funcArgs = funcDef[1:]
+        if type(item[3 - func_idx]) == tuple:
+            item[3 - func_idx] = item[3 - func_idx][1]
+        for i in range(len(funcArgs)):
+            if type(item[func_idx][i + 1]) == tuple:
+                item[func_idx][i + 1] = item[func_idx][i + 1][1]
+            cond_args.append(['=', funcArgs[i], item[func_idx][i + 1]])
+        if len(cond_args) == 1:
+            ret[1] = cond_args[0]
+        else:
+            tmp_ret_1 = ret[1]
+            while len(cond_args) > 2:
+                tmp_ret_1.append('and')
+                tmp_ret_1.append(cond_args.pop(0))
+                tmp_ret_1.append([])
+                tmp_ret_1 = tmp_ret_1[2]
+            tmp_ret_1 = tmp_ret_1 + ['and', cond_args.pop(0), cond_args.pop(0)]
+        ret[2] = item[3 - func_idx]
+        ret.append(['ite', [], []])
+        ret = ret[3]
+    return all_ret, ret
+
+
+def clean_l(l):
+    for i in range(len(l)):
+        if type(l[i]) == tuple:
+            l[i] = l[i][1]
+            continue
+        if type(l[i]) == list:
+            clean_l(l[i])
+
+
+def change_to_str(l):
+    for i in range(len(l)):
+        if type(l[i]) == int:
+            l[i] = str(l[i])
+            continue
+        elif type(l[i]) == list:
+            change_to_str(l[i])
+
+
+def getLogicGuess(empty, l, funcDef):
+    clean_l(l)
+    tmp_l = l
+    tmp_empty = empty
+    parent = tmp_empty
+    while tmp_l[0] == 'or':
+        tmp_empty[1] = tmp_l[1][1]
+        tmp_empty[2] = tmp_l[1][2][2]
+        tmp_empty.append(['ite', [], []])
+        parent = tmp_empty
+        tmp_empty = tmp_empty[3]
+        tmp_l = tmp_l[2]
+    if tmp_l[0] == 'and':
+        parent[3] = tmp_l[2][2]
+    else:
+        parent[3] = 0
+
+
 class PreConstrain:
     allCons = []
     funcDef = []
@@ -96,6 +165,8 @@ class PreConstrain:
         if self.funcDef[0] in l:
             argMap = {}
             for i in range(1, len(l)):
+                if type(l[i]) == tuple:
+                    continue
                 argMap[l[i]] = self.funcArgs[i - 1]
             return True, argMap
         for ele in l:
@@ -125,14 +196,31 @@ class ConstrainPattern:
     imply_cons = []
     logic_cons = []
     allCons = PreConstrain()
+    mathSymbols = []
+    numbers = []
+    numCall = 0
 
     def __init__(self, preCons):
         self.preConstrain = preCons
+
+    def getSymbol(self, expression):
+        if type(expression) == tuple:
+            self.numbers.append(expression[1])
+            return
+        if type(expression) != list:
+            if expression in math_symbol:
+                self.mathSymbols.append(expression)
+            elif expression == self.allCons.funcDef[0]:
+                self.numCall += 1
+            return
+        for item in expression:
+            self.getSymbol(item)
 
     def getPattern(self, constrains):
         self.allCons = constrains
         for consItem in constrains.allCons:
             assert consItem[0] == 'constraint'
+            self.getSymbol(consItem[1])
             if consItem[1][0] in cmp_symbol:
                 if consItem[1][0][0] == '<':
                     consItem[1][1], consItem[1][2] = consItem[1][2], consItem[1][1]
@@ -180,10 +268,15 @@ class ConstrainPattern:
         elif (len(self.cmp_cons) > 0):
             ret = self.buildCmpGuess(0)
             return [ret]
-        else:
+        elif (len(self.logic_cons) > 0):
+            # process s*.sl
+            ret = None
+            empty = None
             if (len(self.eq_cons) > 0):
-                # process eq
-                pass
-            if (len(self.logic_cons) > 0):
-                # process logic
-                pass
+                ret, empty = getEqGuess(self.eq_cons, self.allCons.funcDef)
+            if empty == None:
+                empty = ['ite', [], []]
+                ret = empty
+            getLogicGuess(empty, self.logic_cons[0], self.allCons.funcDef)
+            change_to_str(ret)
+            return ret
