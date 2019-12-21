@@ -3,9 +3,9 @@
 
 (set-logic LIA)
 
-(synth-fun max2 ((x Int) (y Int)) Int
-    ((Start Int (x
-                 y
+(synth-fun max2 ((xx Int) (yy Int)) Int
+    ((Start Int (xx
+                 yy
                  0
                  1
                  (+ Start Start)
@@ -22,7 +22,7 @@
 (declare-var y Int)
 
 (constraint (>= (max2 y x) y))
-(constraint >= (max2 x y) y)
+(constraint <= y (max2 x y))
 (constraint (or (= x (max2 x y))
 				(= y (max2 x y))))
 

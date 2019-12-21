@@ -55,10 +55,12 @@ class ConstrainPattern:
         pass
 
     def getPattern(self, constrains):
-        # TODO: process >= & <=
         for consItem in constrains.allCons:
             assert consItem[0] == 'constraint'
             if consItem[1][0] in cmp_symbol:
+                if consItem[1][0][0] == '<':
+                    consItem[1][1], consItem[1][2] = consItem[1][2], consItem[1][1]
+                consItem[1][0] = consItem[1][0].replace('<', '>')
                 self.cmp_cons.append(consItem[1])
             elif consItem[1][0] == '=>':
                 self.imply_cons.append(consItem[1])
