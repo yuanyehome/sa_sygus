@@ -4,7 +4,7 @@ import pprint
 import translator
 from multiset import *
 from pattern import *
-default_file = 'max3.sl'
+default_file = 'max2.sl'
 exchange_symbol = ['+', '*', 'and', '=']
 compare_symbol = ['>', '<', '>=', '<=']
 searched_set = set()

@@ -63,6 +63,9 @@ def ReadQuery(bmExpr):
             preCons.decVars.append(expr[1])
             VarDecMap[expr[1]] = expr
         elif expr[0] == 'constraint':
+            if len(expr) > 2:
+                expr[1] = expr[1:]
+                expr = expr[:2]
             if type(expr[1]) == list and expr[1][0] in logic_symbol:
                 is_ite_prior = True
             if type(expr[1]) == list and expr[1][0] in cmp_symbol:
