@@ -100,9 +100,9 @@ if __name__ == '__main__':
     pattern.getPattern(preCons)
     firstGuess = pattern.buildGuess()
     success = False
-    if (checker.check(firstGuess) == None):
-        print firstGuess
-        success = True
+    # if (checker.check(firstGuess) == None):
+    #     print firstGuess
+    #     success = True
     while(len(BfsQueue) != 0 and not success):
         Curr = BfsQueue.pop(0)
         # print("Extending "+str(Curr))
