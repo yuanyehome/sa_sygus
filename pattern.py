@@ -1,5 +1,6 @@
 import copy
-cmp_symbols = ['<', '<=', '>=', '>']
+cmp_symbol = ['<', '<=', '>=', '>']
+logic_symbol = ['and', 'or', '=>', 'not']
 
 
 class PreConstrain:
@@ -54,7 +55,16 @@ class ConstrainPattern:
         pass
 
     def getPattern(self, constrains):
-        pass
+        for consItem in constrains.allCons:
+            assert consItem[0] == 'constraint'
+            if consItem[1][0] in cmp_symbol:
+                self.cmp_cons.append(consItem[1])
+            elif consItem[1][0] == '=>':
+                self.imply_cons.append(consItem[1])
+            elif consItem[1][0] in logic_symbol:
+                self.logic_cons.append(consItem[1])
+            elif consItem[1][0] == '=':
+                self.eq_cons.append(consItem[1])
 
     def buildGuess(self):
         pass

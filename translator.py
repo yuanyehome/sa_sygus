@@ -3,8 +3,6 @@ from pattern import *
 import copy
 
 verbose = False
-logic_symbol = ['and', 'or', '=>', 'not']
-compare_symbol = ['>', '<', '>=', '<=']
 
 
 def DeclareVar(sort, name):
@@ -67,7 +65,7 @@ def ReadQuery(bmExpr):
         elif expr[0] == 'constraint':
             if type(expr[1]) == list and expr[1][0] in logic_symbol:
                 is_ite_prior = True
-            if type(expr[1]) == list and expr[1][0] in compare_symbol:
+            if type(expr[1]) == list and expr[1][0] in cmp_symbol:
                 is_cmp_prior = True
             Constraints.append(expr)
         elif expr[0] == 'define-fun':

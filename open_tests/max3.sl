@@ -1,10 +1,10 @@
 
 (set-logic LIA)
 
-(synth-fun max3 ((x Int) (y Int) (z Int)) Int
-    ((Start Int (x
-                 y
-                 z
+(synth-fun max3 ((xx Int) (yy Int) (zz Int)) Int
+    ((Start Int (xx
+                 yy
+                 zz
                  0
                  1
                  (+ Start Start)
