@@ -96,13 +96,15 @@ if __name__ == '__main__':
                 Productions[NTName].append(NT)
     Count = 0
 
-    pattern = ConstrainPattern()
+    pattern = ConstrainPattern(preCons)
     pattern.getPattern(preCons)
     firstGuess = pattern.buildGuess()
     success = False
-    # if (checker.check(firstGuess) == None):
-    #     print firstGuess
-    #     success = True
+    firstGuess = translator.toString(firstGuess)
+    Str = FuncDefineStr[:-1]+' ' + firstGuess+FuncDefineStr[-1]
+    if (checker.check(Str) == None):
+        success = True
+        Ans = Str
     while(len(BfsQueue) != 0 and not success):
         Curr = BfsQueue.pop(0)
         # print("Extending "+str(Curr))

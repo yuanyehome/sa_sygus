@@ -51,8 +51,8 @@ class ConstrainPattern:
     imply_cons = []
     logic_cons = []
 
-    def __init__(self):
-        pass
+    def __init__(self, preCons):
+        self.preConstrain = preCons
 
     def getPattern(self, constrains):
         for consItem in constrains.allCons:
@@ -69,14 +69,37 @@ class ConstrainPattern:
             elif consItem[1][0] == '=':
                 self.eq_cons.append(consItem[1])
 
+    def buildCond(self, left, idx):
+        cond = []
+        if idx == len(self.cmp_cons) - 1:
+            cond.append(self.cmp_cons[idx][0])
+            cond.append(left)
+            cond.append(self.cmp_cons[idx][2])
+            return cond
+        cond.append("and")
+        cond.append([self.cmp_cons[idx][0], left, self.cmp_cons[idx][2]])
+        cond.append(self.buildCond(left, idx + 1)) 
+        return cond
+
+    def buildCmpGuess(self, idx):
+        cond = []
+        cond.append("ite")
+        cond.append(self.buildCond(self.preConstrain.funcArgs[idx], 0))
+        cond.append(self.preConstrain.funcArgs[idx])
+        if idx == len(self.preConstrain.funcArgs) - 2:
+            cond.append(self.preConstrain.funcArgs[idx + 1])
+        else:
+            cond.append(self.buildCmpGuess(idx + 1))
+        return cond
+
     def buildGuess(self):
         # TODO: check whether symbol appears in grammar finally
         if (len(self.imply_cons) > 0):
             # array_search
             pass
         elif (len(self.cmp_cons) > 0):
-            # max
-            pass
+            ret = self.buildCmpGuess(0)
+            return [ret]
         else:
             if (len(self.eq_cons) > 0):
                 # process eq
