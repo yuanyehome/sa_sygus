@@ -4,7 +4,7 @@ import pprint
 import translator
 from multiset import *
 from pattern import *
-default_file = 'max2.sl'
+default_file = 'array_search_2.sl'
 exchange_symbol = ['+', '*', 'and', '=']
 compare_symbol = ['>', '<', '>=', '<=']
 searched_set = set()
@@ -100,9 +100,10 @@ if __name__ == '__main__':
     pattern.getPattern(preCons)
     firstGuess = pattern.buildGuess()
     success = False
-    # if (checker.check(firstGuess) == None):
-    #     print firstGuess
-    #     success = True
+    if len(firstGuess) > 0:
+        if (checker.check(firstGuess) == None):
+            print firstGuess
+            success = True
     while(len(BfsQueue) != 0 and not success):
         Curr = BfsQueue.pop(0)
         # print("Extending "+str(Curr))

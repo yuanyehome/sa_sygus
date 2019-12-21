@@ -3,6 +3,79 @@ cmp_symbol = ['<', '<=', '>=', '>']
 logic_symbol = ['and', 'or', '=>', 'not']
 
 
+def changeSymbol(l):
+    if not type(l) == list:
+        return
+    if l[0] in cmp_symbol and l[0][0] == '<':
+        l[0] = l[0].replace('<', '>')
+        l[1], l[2] = l[2], l[1]
+    for item in l:
+        changeSymbol(item)
+
+
+def checkSymbol(l, funcDef):
+    if l[0] == '=>':
+        return checkSymbol(l[2], funcDef)
+    elif l[0] == '=':
+        return (not type(l[1]) == list and str(l[2]) == str(funcDef)) \
+            or (not type(l[2]) == list and str(l[1]) == str(funcDef))
+    return False
+
+
+def processOne(cond, then, item, funcDef):
+    if item[0] == '=>':
+        if item[2][0] == '=':
+            cond.append(item[1])
+            if str(item[2][1] == str(funcDef)):
+                then.append(item[2][2])
+            else:
+                then.append(item[2][1])
+        else:
+            cond.append(item[1])
+            cond.append(['and'])
+            processOne(cond[2], then, item[2], funcDef)
+
+
+def clean(cur_ret):
+    ele = cur_ret[2][0]
+    if type(ele) == tuple:
+        cur_ret[2] = ele[1]
+    ele = cur_ret[1]
+    while ele[0] == 'and' and len(ele) == 3:
+        if len(ele[2]) == 2:
+            ele[2] = ele[2][1]
+            break
+        ele = ele[2]
+
+
+def getVal(cur_cons, funcDef):
+    ele = cur_cons
+    while not ele[0] == '=':
+        ele = ele[2]
+    if str(ele[1]) == str(funcDef):
+        return ele[2][1]
+    else:
+        return ele[1][1]
+
+
+def getImplyGuess(l, funcDef):
+    ret = []
+    cur_ret = ret
+    for i in range(len(l)):
+        item = l[i]
+        cur_ret.append('ite')
+        cur_ret.append(['and'])
+        cur_ret.append([])
+        processOne(cur_ret[1], cur_ret[2], item, funcDef)
+        clean(cur_ret)
+        if i == len(l) - 2:
+            cur_ret.append(getVal(l[i + 1], funcDef))
+            break
+        cur_ret.append([])
+        cur_ret = cur_ret[3]
+    print ret
+
+
 class PreConstrain:
     allCons = []
     funcDef = []
@@ -50,11 +123,13 @@ class ConstrainPattern:
     eq_cons = []
     imply_cons = []
     logic_cons = []
+    allCons = PreConstrain()
 
     def __init__(self):
         pass
 
     def getPattern(self, constrains):
+        self.allCons = constrains
         for consItem in constrains.allCons:
             assert consItem[0] == 'constraint'
             if consItem[1][0] in cmp_symbol:
@@ -73,7 +148,11 @@ class ConstrainPattern:
         # TODO: check whether symbol appears in grammar finally
         if (len(self.imply_cons) > 0):
             # array_search
-            pass
+            changeSymbol(self.imply_cons)
+            for cons in self.imply_cons:
+                if not checkSymbol(cons, self.allCons.funcDef):
+                    self.imply_cons.remove(cons)
+            return getImplyGuess(self.imply_cons, self.allCons.funcDef)
         elif (len(self.cmp_cons) > 0):
             # max
             pass
