@@ -39,7 +39,7 @@ def processOne(cond, then, item, funcDef):
 def clean(cur_ret):
     ele = cur_ret[2][0]
     if type(ele) == tuple:
-        cur_ret[2] = ele[1]
+        cur_ret[2] = str(ele[1])
     ele = cur_ret[1]
     while ele[0] == 'and' and len(ele) == 3:
         if len(ele[2]) == 2:
@@ -53,9 +53,9 @@ def getVal(cur_cons, funcDef):
     while not ele[0] == '=':
         ele = ele[2]
     if str(ele[1]) == str(funcDef):
-        return ele[2][1]
+        return str(ele[2][1])
     else:
-        return ele[1][1]
+        return str(ele[1][1])
 
 
 def getImplyGuess(l, funcDef):
@@ -73,7 +73,8 @@ def getImplyGuess(l, funcDef):
             break
         cur_ret.append([])
         cur_ret = cur_ret[3]
-    print ret
+    # print ret
+    return ret
 
 
 class PreConstrain:
@@ -125,8 +126,8 @@ class ConstrainPattern:
     logic_cons = []
     allCons = PreConstrain()
 
-    def __init__(self):
-        pass
+    def __init__(self, preCons):
+        self.preConstrain = preCons
 
     def getPattern(self, constrains):
         self.allCons = constrains
@@ -144,6 +145,29 @@ class ConstrainPattern:
             elif consItem[1][0] == '=':
                 self.eq_cons.append(consItem[1])
 
+    def buildCond(self, left, idx):
+        cond = []
+        if idx == len(self.cmp_cons) - 1:
+            cond.append(self.cmp_cons[idx][0])
+            cond.append(left)
+            cond.append(self.cmp_cons[idx][2])
+            return cond
+        cond.append("and")
+        cond.append([self.cmp_cons[idx][0], left, self.cmp_cons[idx][2]])
+        cond.append(self.buildCond(left, idx + 1))
+        return cond
+
+    def buildCmpGuess(self, idx):
+        cond = []
+        cond.append("ite")
+        cond.append(self.buildCond(self.preConstrain.funcArgs[idx], 0))
+        cond.append(self.preConstrain.funcArgs[idx])
+        if idx == len(self.preConstrain.funcArgs) - 2:
+            cond.append(self.preConstrain.funcArgs[idx + 1])
+        else:
+            cond.append(self.buildCmpGuess(idx + 1))
+        return cond
+
     def buildGuess(self):
         # TODO: check whether symbol appears in grammar finally
         if (len(self.imply_cons) > 0):
@@ -154,8 +178,8 @@ class ConstrainPattern:
                     self.imply_cons.remove(cons)
             return getImplyGuess(self.imply_cons, self.allCons.funcDef)
         elif (len(self.cmp_cons) > 0):
-            # max
-            pass
+            ret = self.buildCmpGuess(0)
+            return [ret]
         else:
             if (len(self.eq_cons) > 0):
                 # process eq
