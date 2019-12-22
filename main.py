@@ -21,6 +21,7 @@ firstFlag = True
 has_ge_le = False
 has_g_l = False
 
+# the following three functions are used for const condition check 
 def genVarSymbol(SynFunExpr):
     for item in SynFunExpr[2]:
         var_symbol.append(item[0])
@@ -168,9 +169,9 @@ if __name__ == '__main__':
         # print firstGuess
         firstGuess = translator.toString(firstGuess)
         Str = FuncDefineStr[:-1]+' ' + firstGuess+FuncDefineStr[-1]
-        # if (checker.check(Str) == None):
-        #     success = True
-        #     Ans = Str
+        if (checker.check(Str) == None):
+            success = True
+            Ans = Str
     while(len(BfsQueue) != 0 and not success):
         Curr = BfsQueue.pop(0)
         # print("Extending "+str(Curr))

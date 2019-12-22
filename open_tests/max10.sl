@@ -36,7 +36,6 @@
 (declare-var x9 Int)
 (declare-var x10 Int)
 
-
 (constraint (>= (max10 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10) x1))
 (constraint (>= (max10 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10) x2))
 (constraint (>= (max10 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10) x3))
