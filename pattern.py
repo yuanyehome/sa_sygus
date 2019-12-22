@@ -27,7 +27,7 @@ def processOne(cond, then, item, funcDef):
     if item[0] == '=>':
         if item[2][0] == '=':
             cond.append(item[1])
-            if str(item[2][1] == str(funcDef)):
+            if str(item[2][1]) == str(funcDef):
                 then.append(item[2][2])
             else:
                 then.append(item[2][1])
