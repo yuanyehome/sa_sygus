@@ -307,7 +307,7 @@ class ConstrainPattern:
             return getImplyGuess(self.imply_cons, self.allCons.funcDef)
         elif (len(self.cmp_cons) > 0):
             ret = self.buildCmpGuess(0)
-            return [ret]
+            return ret
         elif (len(self.logic_cons) > 0):
             # process s*.sl
             ret = None
@@ -320,3 +320,5 @@ class ConstrainPattern:
             getLogicGuess(empty, self.logic_cons[0], self.allCons.funcDef)
             change_to_str(ret)
             return ret
+        elif (len(self.eq_cons) > 0):
+            return self.eq_cons[0][2]
