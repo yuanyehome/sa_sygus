@@ -5,10 +5,11 @@ import translator
 import time
 from multiset import *
 from pattern import *
-# default_file = 'max10.sl'
-# default_file = 'max2.sl'
+default_file = 'max2.sl'
+# default_file = 'max15.sl'
 # default_file = 'three.sl'
-default_file = 's1.sl'
+# default_file = 'my_test.sl'
+# default_file = 'tutorial.sl'
 exchange_symbol = ['+', '*', 'and', '=']
 compare_symbol = ['>', '<', '>=', '<=']
 var_symbol = []
@@ -102,6 +103,7 @@ def stripComments(bmFile):
 
 
 if __name__ == '__main__':
+    TE_set = set()
     begin_t = time.time()
     file_name = 'open_tests/' + default_file
     if (len(sys.argv) > 1):
@@ -202,8 +204,8 @@ if __name__ == '__main__':
             Str = FuncDefineStr[:-1]+' ' + CurrStr+FuncDefineStr[-1]
             Count += 1
             # print (Count)
-            #print Curr
-            #print (Str)
+            # print Curr
+            # print (Str)
             # if Count % 100 == 1:
             # print (Count)
             # print (Str)
@@ -219,7 +221,6 @@ if __name__ == '__main__':
         # print(TryExtend)
         # raw_input()
         # BfsQueue+=TryExtend
-        TE_set = set()
         for TE in TryExtend:
             all_cnt += 1
             TE_str = str(TE)
