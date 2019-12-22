@@ -184,10 +184,13 @@ class PreConstrain:
                 l[i] = argMap[l[i]]
 
     def preProcessCons(self):
+        # argument replacement
         for cons in self.allCons:
             b, argMap = self.hasFunc(cons)
             if b:
                 self.replaceCons(cons, argMap)
+        # piecewise function conversion
+        
 
 
 class ConstrainPattern:
@@ -256,10 +259,11 @@ class ConstrainPattern:
     def buildCmpGuess(self, idx):
         cond = []
         cond.append("ite")
-        cond.append(self.buildCond(self.preConstrain.funcArgs[idx], 0))
-        cond.append(self.preConstrain.funcArgs[idx])
+        cond.append(self.buildCond(self.preConstrain.allCons[idx][1][2], 0))
+        cond.append(self.preConstrain.allCons[idx][1][2])
+        #cond.append(self.preConstrain.funcArgs[idx])
         if idx == len(self.preConstrain.funcArgs) - 2:
-            cond.append(self.preConstrain.funcArgs[idx + 1])
+            cond.append(self.preConstrain.allCons[idx + 1][1][2])
         else:
             cond.append(self.buildCmpGuess(idx + 1))
         return cond
