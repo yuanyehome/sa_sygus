@@ -182,69 +182,75 @@ if __name__ == '__main__':
     #     if (checker.check(Str) == None):
     #         success = True
     #         Ans = Str
-
-    while(len(BfsQueue) != 0 and not success):
-        CountX += 1
-        Curr = BfsQueue.pop(0)
-        # print("Extending "+str(Curr))
-        TryExtend = Extend(Curr, Productions, pattern.numCall - 2)
-        for Stmt in TryExtend:
-            if iteDetCheck(Stmt):
-                TryExtend.remove(Stmt)
-        if(len(TryExtend) == 0):  # Nothing to extend
-            # use Force Bracket = True on function definition. MAGIC CODE. DO NOT MODIFY THE ARGUMENT ForceBracket = True.
-            CurrStr = translator.toString(Curr)
-            # SynFunResult = FuncDefine+Curr
-            # Str = translator.toString(SynFunResult)
-            # insert Program just before the last bracket ')'
-            Str = FuncDefineStr[:-1]+' ' + CurrStr+FuncDefineStr[-1]
-            Count += 1
-            # print (Count)
-            # print Curr
-            # print (Str)
-            # if Count % 100 == 1:
-            # print (Count)
-            # print (Str)
-            # raw_input()
-            # print '1'
-            # print >> log_ter_file, Str
-            counterexample = checker.check(Str)
-            # print counterexample
-            if(counterexample == None):  # No counter-example
-                Ans = Str
-                break
-            # print '2'
-        # print(TryExtend)
-        # raw_input()
-        # BfsQueue+=TryExtend
-        if CountX >= limit_cnt and flag:
-            finalGuess = pattern.buildGuess()
-            if finalGuess != None:
-                finalGuess = translator.toString(finalGuess)
-                Str = FuncDefineStr[:-1]+' ' + finalGuess+FuncDefineStr[-1]
-                if (checker.check(Str) == None):
+    try:
+        while(len(BfsQueue) != 0 and not success):
+            CountX += 1
+            Curr = BfsQueue.pop(0)
+            # print("Extending "+str(Curr))
+            TryExtend = Extend(Curr, Productions, pattern.numCall - 2)
+            for Stmt in TryExtend:
+                if iteDetCheck(Stmt):
+                    TryExtend.remove(Stmt)
+            if(len(TryExtend) == 0):  # Nothing to extend
+                # use Force Bracket = True on function definition. MAGIC CODE. DO NOT MODIFY THE    ARGUMENT ForceBracket = True.
+                CurrStr = translator.toString(Curr)
+                # SynFunResult = FuncDefine+Curr
+                # Str = translator.toString(SynFunResult)
+                # insert Program just before the last bracket ')'
+                Str = FuncDefineStr[:-1]+' ' + CurrStr+FuncDefineStr[-1]
+                Count += 1
+                # print (Count)
+                # print Curr
+                # print (Str)
+                # if Count % 100 == 1:
+                # print (Count)
+                # print (Str)
+                # raw_input()
+                # print '1'
+                # print >> log_ter_file, Str
+                counterexample = checker.check(Str)
+                # print counterexample
+                if(counterexample == None):  # No counter-example
                     Ans = Str
                     break
-            flag = False
+                # print '2'
+            # print(TryExtend)
+            # raw_input()
+            # BfsQueue+=TryExtend
+            if CountX >= limit_cnt and flag:
+                finalGuess = pattern.buildGuess()
+                if finalGuess != None:
+                    finalGuess = translator.toString(finalGuess)
+                    Str = FuncDefineStr[:-1]+' ' + finalGuess+FuncDefineStr[-1]
+                    if (checker.check(Str) == None):
+                        Ans = Str
+                        break
+                flag = False
 
-        for TE in TryExtend:
-            all_cnt += 1
-            TE_str = str(TE)
-            # if type(TE[0]) == list and TE[0][0] in exchange_symbol:
-            #     tmp_TE = []
-            #     for item in TE[0][1:]:
-            #         tmp_TE.append(str(item))
-            #     this_sym = str(Multiset(tmp_TE))
-            #     if (this_sym in searched_set):
-            #         tmp_cnt += 1
-            #         continue
-            #     searched_set.add(this_sym)
-            # Don't delete it! It is useless now. But may be used in future!
-            if not TE_str in TE_set:
-                BfsQueue.append(TE)
-                # print >> log_file, TE_str
-                TE_set.add(TE_str)
-
+            for TE in TryExtend:
+                all_cnt += 1
+                TE_str = str(TE)
+                # if type(TE[0]) == list and TE[0][0] in exchange_symbol:
+                #     tmp_TE = []
+                #     for item in TE[0][1:]:
+                #         tmp_TE.append(str(item))
+                #     this_sym = str(Multiset(tmp_TE))
+                #     if (this_sym in searched_set):
+                #         tmp_cnt += 1
+                #         continue
+                #     searched_set.add(this_sym)
+                # Don't delete it! It is useless now. But may be used in future!
+                if not TE_str in TE_set:
+                    BfsQueue.append(TE)
+                    # print >> log_file, TE_str
+                    TE_set.add(TE_str)
+    except:
+        finalGuess = pattern.buildGuess()
+        if finalGuess != None:
+            finalGuess = translator.toString(finalGuess)
+            Str = FuncDefineStr[:-1]+' ' + finalGuess+FuncDefineStr[-1]
+            if (checker.check(Str) == None):
+                Ans = Str
     print(Ans)
     end_t = time.time()
     print "\033[32mPass time: \033[0m" + str(end_t - begin_t) + ' s'
