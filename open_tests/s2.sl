@@ -17,7 +17,7 @@
 (declare-var x Int)
 (declare-var y Int)
 
-(constraint (or (and (= 0 (f x y)) (= x y))
+(constraint (or (and (= x y) (= (f x y) 0))
             (or (and (> x y) (= (f x y) 1))
 				(and (< x y) (= (f x y) -1)))))
 

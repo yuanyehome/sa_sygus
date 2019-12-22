@@ -136,6 +136,7 @@ if __name__ == '__main__':
 
     pattern = ConstrainPattern(preCons)
     pattern.getPattern(preCons)
+    limit_cnt = len(preCons.allCons)*2000
     for NonTerm in SynFunExpr[4]:  # SynFunExpr[4] is the production rules
         NTName = NonTerm[0]
         NTType = NonTerm[1]
@@ -168,30 +169,22 @@ if __name__ == '__main__':
                     continue
                 Productions[NTName].append(NT)
     Count = 0
+    CountX = 0
+    flag = True
 
-    firstGuess = pattern.buildGuess()
+    # firstGuess = pattern.buildGuess()
     success = False
-    if firstGuess != None:
-        # print firstGuess
-        firstGuess = translator.toString(firstGuess)
-        Str = FuncDefineStr[:-1]+' ' + firstGuess+FuncDefineStr[-1]
-        #print Str
-        if (checker.check(Str) == None):
-            success = True
-            Ans = Str
-
-    # tmp = pattern.buildCond('xx',0)
-    # Productions['StartBool'].insert(0, tmp)
-    # tmp = pattern.buildCond('yy',0)
-    # Productions['StartBool'].insert(0, tmp)
-    # tmp = pattern.buildCond('zz',0)
-    # Productions['StartBool'].insert(0, tmp)
-    # Productions['StartBool'].pop()
-    # Productions['StartBool'].pop()
-    # Productions['StartBool'].pop()
-    # Productions['StartBool'].pop()
+    # if firstGuess != None:
+    #     # print firstGuess
+    #     firstGuess = translator.toString(firstGuess)
+    #     Str = FuncDefineStr[:-1]+' ' + firstGuess+FuncDefineStr[-1]
+    #     print Str
+    #     if (checker.check(Str) == None):
+    #         success = True
+    #         Ans = Str
 
     while(len(BfsQueue) != 0 and not success):
+        CountX += 1
         Curr = BfsQueue.pop(0)
         # print("Extending "+str(Curr))
         TryExtend = Extend(Curr, Productions, pattern.numCall - 2)
@@ -224,6 +217,16 @@ if __name__ == '__main__':
         # print(TryExtend)
         # raw_input()
         # BfsQueue+=TryExtend
+        if CountX >= limit_cnt and flag:
+            finalGuess = pattern.buildGuess()
+            if finalGuess != None:
+                finalGuess = translator.toString(finalGuess)
+                Str = FuncDefineStr[:-1]+' ' + finalGuess+FuncDefineStr[-1]
+                if (checker.check(Str) == None):
+                    Ans = Str
+                    break
+            flag = False
+
         for TE in TryExtend:
             all_cnt += 1
             TE_str = str(TE)
