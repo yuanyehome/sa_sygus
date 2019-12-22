@@ -5,11 +5,12 @@ import translator
 import time
 from multiset import *
 from pattern import *
-default_file = 'max2.sl'
+# default_file = 'max2.sl'
 # default_file = 'max15.sl'
 # default_file = 'three.sl'
 # default_file = 'my_test.sl'
 # default_file = 'tutorial.sl'
+default_file = 's2.sl'
 exchange_symbol = ['+', '*', 'and', '=']
 compare_symbol = ['>', '<', '>=', '<=']
 var_symbol = []

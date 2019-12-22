@@ -128,18 +128,42 @@ def change_to_str(l):
             change_to_str(l[i])
 
 
+def check_f(l, funcDef):
+    if type(l) == list:
+        for item in l:
+            if check_f(item, funcDef):
+                return True
+        return False
+    else:
+        return l == funcDef[0]
+
+
 def getLogicGuess(empty, l, funcDef):
     clean_l(l)
     tmp_l = l
     tmp_empty = empty
     parent = tmp_empty
     while tmp_l[0] == 'or':
-        tmp_empty[1] = tmp_l[1][1]
-        tmp_empty[2] = tmp_l[1][2][2]
-        tmp_empty.append(['ite', [], []])
-        parent = tmp_empty
-        tmp_empty = tmp_empty[3]
-        tmp_l = tmp_l[2]
+        if check_f(tmp_l[1][2], funcDef):
+            tmp_empty[1] = tmp_l[1][1]
+            if type(tmp_l[1][2][2]) == list and str(tmp_l[1][2][2]) == str(funcDef):
+                tmp_empty[2] = tmp_l[1][2][1]
+            else:
+                tmp_empty[2] = tmp_l[1][2][2]
+            tmp_empty.append(['ite', [], []])
+            parent = tmp_empty
+            tmp_empty = tmp_empty[3]
+            tmp_l = tmp_l[2]
+        else:
+            tmp_empty[1] = tmp_l[1][2]
+            if str(tmp_l[1][1][2]) == str(funcDef):
+                tmp_empty[2] = tmp_l[1][1][1]
+            else:
+                tmp_empty[2] = tmp_l[1][1][2]
+            tmp_empty.append(['ite', [], []])
+            parent = tmp_empty
+            tmp_empty = tmp_empty[3]
+            tmp_l = tmp_l[2]
     if tmp_l[0] == 'and':
         parent[3] = tmp_l[2][2]
     else:
