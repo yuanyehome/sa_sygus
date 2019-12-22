@@ -21,10 +21,10 @@
 (declare-var x Int)
 (declare-var y Int)
 
-(constraint (>= (max2 y x) y))
-(constraint <= y (max2 x y))
-(constraint (or (= x (max2 x y))
-				(= y (max2 x y))))
+(constraint (>= (max2 y x) (+ y 1)))
+(constraint <= (+ y 1) (max2 x y))
+(constraint (or (= (+ x 1) (max2 x y))
+				(= (+ y 1) (max2 x y))))
 
 
 (check-synth)
