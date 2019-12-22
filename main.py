@@ -23,22 +23,20 @@ has_g_l = False
 
 # the following three functions are used for const condition check 
 def genVarSymbol(SynFunExpr):
-    for item in SynFunExpr[2]:
-        var_symbol.append(item[0])
-    for item in SynFunExpr[4]:
-        var_symbol.append(item[0])
+    var_symbol.append([item[0] for item in SynFunExpr[2]])
+    var_symbol.append([item[0] for item in SynFunExpr[4]])
 
 def condDetCheck(Stmts):
-    if type(Stmts) != list and Stmts in var_symbol:
-        return False
+    flag = False
+    if type(Stmts) != list:
+        return flag
+    if Stmts[0] in cmp_symbol and Stmts[1] == Stmts[2] and Stmts[1] in var_symbol[0]:
+        return True
     for i in range(len(Stmts)):
         if type(Stmts[i]) == list:
-            flag = condDetCheck(Stmts[i])
-            if not flag:
-                return flag
-        elif Stmts[i] in var_symbol:
-            return False
-    return True
+            if condDetCheck(Stmts[i]):
+                flag = True
+    return flag
 
 def iteDetCheck(Stmts):
     for i in range(len(Stmts)):
@@ -172,6 +170,18 @@ if __name__ == '__main__':
         if (checker.check(Str) == None):
             success = True
             Ans = Str
+
+    # tmp = pattern.buildCond('xx',0)
+    # Productions['StartBool'].insert(0, tmp)
+    # tmp = pattern.buildCond('yy',0)
+    # Productions['StartBool'].insert(0, tmp)
+    # tmp = pattern.buildCond('zz',0)
+    # Productions['StartBool'].insert(0, tmp)
+    # Productions['StartBool'].pop()
+    # Productions['StartBool'].pop()
+    # Productions['StartBool'].pop()
+    # Productions['StartBool'].pop()
+
     while(len(BfsQueue) != 0 and not success):
         Curr = BfsQueue.pop(0)
         # print("Extending "+str(Curr))
@@ -188,7 +198,8 @@ if __name__ == '__main__':
             Str = FuncDefineStr[:-1]+' ' + CurrStr+FuncDefineStr[-1]
             Count += 1
             # print (Count)
-            # print (Str)
+            #print Curr
+            #print (Str)
             # if Count % 100 == 1:
             # print (Count)
             # print (Str)

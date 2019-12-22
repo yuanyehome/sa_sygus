@@ -229,6 +229,7 @@ class ConstrainPattern:
             elif consItem[1][0] == '=>':
                 self.imply_cons.append(consItem[1])
             elif consItem[1][0] in logic_symbol:
+                ## this is used to deal with case: (not (cmp x y))
                 if consItem[1][0] == 'not' and consItem[1][1][0] in cmp_symbol:
                     i = cmp_symbol.index(consItem[1][1][0])
                     consItem[1] = consItem[1][1]
