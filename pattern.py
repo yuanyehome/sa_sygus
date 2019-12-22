@@ -287,8 +287,8 @@ class ConstrainPattern:
     def buildCmpGuess(self, idx):
         cond = []
         cond.append("ite")
-        cond.append(self.buildCond(self.preConstrain.allCons[idx][1][2], 0))
-        cond.append(self.preConstrain.allCons[idx][1][2])
+        cond.append(self.buildCond(self.cmp_cons[idx][2], 0))
+        cond.append(self.cmp_cons[idx][2])
         #cond.append(self.preConstrain.funcArgs[idx])
         if idx == len(self.cmp_cons) - 2:
             cond.append(self.cmp_cons[idx + 1][2])
@@ -320,5 +320,5 @@ class ConstrainPattern:
             getLogicGuess(empty, self.logic_cons[0], self.allCons.funcDef)
             change_to_str(ret)
             return ret
-        elif (len(self.eq_cons) > 0):
+        elif (len(self.eq_cons) == 1):
             return self.eq_cons[0][2]
