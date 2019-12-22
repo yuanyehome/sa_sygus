@@ -266,32 +266,39 @@ class ConstrainPattern:
                     consItem[1] = consItem[1][1]
                     consItem[1][0] = consItem[1][0].replace(
                         cmp_symbol[i], cmp_symbol[3-i])
+                    if consItem[1][0][0] == '<':
+                        consItem[1][1], consItem[1][2] = consItem[1][2], consItem[1][1]
+                    consItem[1][0] = consItem[1][0].replace('<', '>')
                     self.cmp_cons.append(consItem[1])
                     continue
                 self.logic_cons.append(consItem[1])
             elif consItem[1][0] == '=':
                 self.eq_cons.append(consItem[1])
 
-    def buildCond(self, left, idx):
+    def buildCond(self, left, idx, cmp_op, var_index):
         cond = []
         if idx == len(self.cmp_cons) - 1:
-            cond.append(self.cmp_cons[idx][0])
+            cond.append(cmp_op)
             cond.append(left)
-            cond.append(self.cmp_cons[idx][2])
+            cond.append(self.cmp_cons[idx][var_index])
             return cond
         cond.append("and")
-        cond.append([self.cmp_cons[idx][0], left, self.cmp_cons[idx][2]])
-        cond.append(self.buildCond(left, idx + 1))
+        cond.append([cmp_op, left, self.cmp_cons[idx][var_index]])
+        cond.append(self.buildCond(left, idx + 1, cmp_op, var_index))
         return cond
 
     def buildCmpGuess(self, idx):
         cond = []
         cond.append("ite")
-        cond.append(self.buildCond(self.cmp_cons[idx][2], 0))
-        cond.append(self.cmp_cons[idx][2])
-        #cond.append(self.preConstrain.funcArgs[idx])
+        var_index = 2
+        cmp_op = '>='
+        if str(self.cmp_cons[idx][2]) == str(self.allCons.funcDef):
+            var_index = 1
+            cmp_op = '<='
+        cond.append(self.buildCond(self.cmp_cons[idx][var_index], 0, cmp_op, var_index))
+        cond.append(self.cmp_cons[idx][var_index])
         if idx == len(self.cmp_cons) - 2:
-            cond.append(self.cmp_cons[idx + 1][2])
+            cond.append(self.cmp_cons[idx + 1][var_index])
         else:
             cond.append(self.buildCmpGuess(idx + 1))
         return cond
