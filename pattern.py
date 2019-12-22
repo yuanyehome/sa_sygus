@@ -41,12 +41,23 @@ def clean(cur_ret):
     ele = cur_ret[2][0]
     if type(ele) == tuple:
         cur_ret[2] = str(ele[1])
+    elif type(ele) == list:
+        cur_ret[2] = ele
     ele = cur_ret[1]
     while ele[0] == 'and' and len(ele) == 3:
         if len(ele[2]) == 2:
             ele[2] = ele[2][1]
             break
         ele = ele[2]
+
+
+def clean_l(l):
+    for i in range(len(l)):
+        if type(l[i]) == tuple:
+            l[i] = str(l[i][1])
+            continue
+        if type(l[i]) == list:
+            clean_l(l[i])
 
 
 def getVal(cur_cons, funcDef):
@@ -69,6 +80,9 @@ def getImplyGuess(l, funcDef):
         cur_ret.append([])
         processOne(cur_ret[1], cur_ret[2], item, funcDef)
         clean(cur_ret)
+        clean_l(cur_ret)
+        if len(cur_ret[1]) == 2:
+            cur_ret[1] = cur_ret[1][1]
         if i == len(l) - 2:
             cur_ret.append(getVal(l[i + 1], funcDef))
             break
@@ -108,15 +122,6 @@ def getEqGuess(l, funcDef):
         ret.append(['ite', [], []])
         ret = ret[3]
     return all_ret, ret
-
-
-def clean_l(l):
-    for i in range(len(l)):
-        if type(l[i]) == tuple:
-            l[i] = l[i][1]
-            continue
-        if type(l[i]) == list:
-            clean_l(l[i])
 
 
 def change_to_str(l):
@@ -214,7 +219,6 @@ class PreConstrain:
             if b:
                 self.replaceCons(cons, argMap)
         # piecewise function conversion
-        
 
 
 class ConstrainPattern:
@@ -297,9 +301,9 @@ class ConstrainPattern:
         if (len(self.imply_cons) > 0):
             # array_search
             changeSymbol(self.imply_cons)
-            for cons in self.imply_cons:
-                if not checkSymbol(cons, self.allCons.funcDef):
-                    self.imply_cons.remove(cons)
+            # for cons in self.imply_cons:
+            #     if not checkSymbol(cons, self.allCons.funcDef):
+            #         self.imply_cons.remove(cons)
             return getImplyGuess(self.imply_cons, self.allCons.funcDef)
         elif (len(self.cmp_cons) > 0):
             ret = self.buildCmpGuess(0)
