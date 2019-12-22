@@ -21,10 +21,13 @@ firstFlag = True
 has_ge_le = False
 has_g_l = False
 
-# the following three functions are used for const condition check 
+# the following three functions are used for const condition check
+
+
 def genVarSymbol(SynFunExpr):
     var_symbol.append([item[0] for item in SynFunExpr[2]])
     var_symbol.append([item[0] for item in SynFunExpr[4]])
+
 
 def condDetCheck(Stmts):
     flag = False
@@ -38,6 +41,7 @@ def condDetCheck(Stmts):
                 flag = True
     return flag
 
+
 def iteDetCheck(Stmts):
     for i in range(len(Stmts)):
         if type(Stmts[i]) == list:
@@ -47,6 +51,7 @@ def iteDetCheck(Stmts):
             if condDetCheck(Stmts[i + 1]):
                 return True
     return False
+
 
 def Extend(Stmts, Productions, depth=0):
     ret = []
@@ -73,7 +78,6 @@ def Extend(Stmts, Productions, depth=0):
                 # else:
                 ret.append(Stmts[0:i]+[extended]+Stmts[i+1:])
         if len(ret) > 0:
-            # # TODO: fuck here! should change!
             # if firstFlag and type(ret[0][0]) == list and ret[0][0][0] == 'ite':
             #     tmp_ret_new = copy.deepcopy(ret[0][0])
             #     tmp_ret = tmp_ret_new
@@ -123,7 +127,7 @@ if __name__ == '__main__':
     BfsQueue = [[StartSym]]  # Top-down
     Productions = {StartSym: []}
     Type = {StartSym: SynFunExpr[3]}  # set starting symbol's return type
-    
+
     genVarSymbol(SynFunExpr)
 
     pattern = ConstrainPattern(preCons)
