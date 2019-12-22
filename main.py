@@ -174,6 +174,7 @@ if __name__ == '__main__':
         # print firstGuess
         firstGuess = translator.toString(firstGuess)
         Str = FuncDefineStr[:-1]+' ' + firstGuess+FuncDefineStr[-1]
+        #print Str
         if (checker.check(Str) == None):
             success = True
             Ans = Str

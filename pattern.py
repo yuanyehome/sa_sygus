@@ -286,8 +286,8 @@ class ConstrainPattern:
         cond.append(self.buildCond(self.preConstrain.allCons[idx][1][2], 0))
         cond.append(self.preConstrain.allCons[idx][1][2])
         #cond.append(self.preConstrain.funcArgs[idx])
-        if idx == len(self.preConstrain.funcArgs) - 2:
-            cond.append(self.preConstrain.allCons[idx + 1][1][2])
+        if idx == len(self.cmp_cons) - 2:
+            cond.append(self.cmp_cons[idx + 1][2])
         else:
             cond.append(self.buildCmpGuess(idx + 1))
         return cond
