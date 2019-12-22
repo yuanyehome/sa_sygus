@@ -10,7 +10,8 @@ from pattern import *
 # default_file = 'three.sl'
 # default_file = 'my_test.sl'
 # default_file = 'tutorial.sl'
-default_file = 's2.sl'
+default_file = 'array_sum_7_15.sl'
+# default_file = 'array_search_2.sl'
 exchange_symbol = ['+', '*', 'and', '=']
 compare_symbol = ['>', '<', '>=', '<=']
 var_symbol = []
