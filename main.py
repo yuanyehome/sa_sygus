@@ -247,7 +247,7 @@ if __name__ == '__main__':
 
     print(Ans)
     end_t = time.time()
-    print "Pass time: " + str(end_t - begin_t)
+    print "\033[32mPass time: \033[0m" + str(end_t - begin_t) + ' s'
 
     # Examples of counter-examples
     # print (checker.check('(define-fun max2 ((x Int) (y Int)) Int 0)'))
