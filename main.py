@@ -2,14 +2,16 @@ import sys
 import sexp
 import pprint
 import translator
+import time
 from multiset import *
 from pattern import *
 # default_file = 'max10.sl'
 # default_file = 'max2.sl'
 # default_file = 'three.sl'
-default_file = 's3.sl'
+default_file = 's1.sl'
 exchange_symbol = ['+', '*', 'and', '=']
 compare_symbol = ['>', '<', '>=', '<=']
+var_symbol = []
 searched_set = set()
 log_file = open('log.txt', 'w')
 log_ter_file = open('log_ter.txt', 'w')
@@ -19,6 +21,33 @@ firstFlag = True
 has_ge_le = False
 has_g_l = False
 
+def genVarSymbol(SynFunExpr):
+    for item in SynFunExpr[2]:
+        var_symbol.append(item[0])
+    for item in SynFunExpr[4]:
+        var_symbol.append(item[0])
+
+def condDetCheck(Stmts):
+    if type(Stmts) != list and Stmts in var_symbol:
+        return False
+    for i in range(len(Stmts)):
+        if type(Stmts[i]) == list:
+            flag = condDetCheck(Stmts[i])
+            if not flag:
+                return flag
+        elif Stmts[i] in var_symbol:
+            return False
+    return True
+
+def iteDetCheck(Stmts):
+    for i in range(len(Stmts)):
+        if type(Stmts[i]) == list:
+            if iteDetCheck(Stmts[i]):
+                return True
+        elif Stmts[i] == 'ite':
+            if condDetCheck(Stmts[i + 1]):
+                return True
+    return False
 
 def Extend(Stmts, Productions, depth=0):
     ret = []
@@ -45,18 +74,18 @@ def Extend(Stmts, Productions, depth=0):
                 # else:
                 ret.append(Stmts[0:i]+[extended]+Stmts[i+1:])
         if len(ret) > 0:
-            # TODO: fuck here! should change!
-            if firstFlag and type(ret[0][0]) == list and ret[0][0][0] == 'ite':
-                tmp_ret_new = copy.deepcopy(ret[0][0])
-                tmp_ret = tmp_ret_new
-                while depth > 0:
-                    tmp_ret[1] = ['<=', 'x', 'y']
-                    tmp_ret[2] = copy.deepcopy(Productions['Start'][0])
-                    tmp_ret = tmp_ret[2]
-                    tmp_ret[1] = ['=', 'x', 'y']
-                    depth -= 1
-                firstFlag = False
-                ret.insert(0, [tmp_ret_new])
+            # # TODO: fuck here! should change!
+            # if firstFlag and type(ret[0][0]) == list and ret[0][0][0] == 'ite':
+            #     tmp_ret_new = copy.deepcopy(ret[0][0])
+            #     tmp_ret = tmp_ret_new
+            #     while depth > 0:
+            #         tmp_ret[1] = ['<=', 'x', 'y']
+            #         tmp_ret[2] = copy.deepcopy(Productions['Start'][0])
+            #         tmp_ret = tmp_ret[2]
+            #         tmp_ret[1] = ['=', 'x', 'y']
+            #         depth -= 1
+            #     firstFlag = False
+            #     ret.insert(0, [tmp_ret_new])
             return ret
     return ret
 
@@ -70,6 +99,7 @@ def stripComments(bmFile):
 
 
 if __name__ == '__main__':
+    begin_t = time.time()
     file_name = 'open_tests/' + default_file
     if (len(sys.argv) > 1):
         file_name = sys.argv[1]
@@ -94,6 +124,8 @@ if __name__ == '__main__':
     BfsQueue = [[StartSym]]  # Top-down
     Productions = {StartSym: []}
     Type = {StartSym: SynFunExpr[3]}  # set starting symbol's return type
+    
+    genVarSymbol(SynFunExpr)
 
     pattern = ConstrainPattern(preCons)
     pattern.getPattern(preCons)
@@ -136,13 +168,16 @@ if __name__ == '__main__':
         # print firstGuess
         firstGuess = translator.toString(firstGuess)
         Str = FuncDefineStr[:-1]+' ' + firstGuess+FuncDefineStr[-1]
-        if (checker.check(Str) == None):
-            success = True
-            Ans = Str
+        # if (checker.check(Str) == None):
+        #     success = True
+        #     Ans = Str
     while(len(BfsQueue) != 0 and not success):
         Curr = BfsQueue.pop(0)
         # print("Extending "+str(Curr))
         TryExtend = Extend(Curr, Productions, pattern.numCall - 2)
+        for Stmt in TryExtend:
+            if iteDetCheck(Stmt):
+                TryExtend.remove(Stmt)
         if(len(TryExtend) == 0):  # Nothing to extend
             # use Force Bracket = True on function definition. MAGIC CODE. DO NOT MODIFY THE ARGUMENT ForceBracket = True.
             CurrStr = translator.toString(Curr)
@@ -188,6 +223,8 @@ if __name__ == '__main__':
                 TE_set.add(TE_str)
 
     print(Ans)
+    end_t = time.time()
+    print "Pass time: " + str(end_t - begin_t)
 
     # Examples of counter-examples
     # print (checker.check('(define-fun max2 ((x Int) (y Int)) Int 0)'))
